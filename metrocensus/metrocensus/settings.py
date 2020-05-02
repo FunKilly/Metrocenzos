@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-AUTH_USER_MODEL = "metrocensus.admin.User"
+AUTH_USER_MODEL = "admin.User"
 # Application definition
 
 INSTALLED_APPS = [

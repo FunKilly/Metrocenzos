@@ -18,10 +18,10 @@ class Citizen(models.Model):
     profession = models.CharField(
         max_length=30,
         choices=CitizenProfessionType.choices,
-        default=CitizenProfessionType.Other,
+        default=CitizenProfessionType.OTHER,
     )
     status = models.CharField(
-        max_length=30, choices=CitizenStatusType.choices, default=CitizenStatusType.Active
+        max_length=30, choices=CitizenStatusType.choices, default=CitizenStatusType.ACTIVE
     )
 
 
@@ -30,13 +30,6 @@ class CitizenFile(models.Model):
     desription = models.CharField(max_length=400, null=False)
     result = models.CharField(max_length=200)
     citizen_status_changed = models.BooleanField(default=False)
-
-
-class PayoutHistory(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    citizen = models.ForeignKey(Citizen, on_delete=models.PROTECT)
-    date = models.DateField(auto_now_add=True)
-    amount = models.DecimalField(default=0)
 
 
 class ReasonOfDeath(models.Model):

@@ -11,21 +11,21 @@ class PayoutHistory(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     citizen = models.ForeignKey(Citizen, on_delete=models.PROTECT)
     date = models.DateField(auto_now_add=True)
-    amount = models.DecimalField(default=0, max_digits=2)
+    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
 
 
 class WealthStatus(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     currency = models.CharField(max_length=30, null=False)
     default = models.BooleanField(default=False)
-    converter = models.DecimalField(max_digits=2, default=0)
+    converter = models.DecimalField(decimal_places=2, default=0, max_digits=9)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     """ User model with UserRoleType choices representing role in system. """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=50, blank=False)
+    name = models.CharField(max_length=50, blank=False, unique=True, null=False)
     role = models.CharField(
         max_length=30, choices=UserRoleType.choices, default=UserRoleType.TRUSTEE,
     )
@@ -36,10 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    REQUIRED_FIELDS = ["name"]
-
     USERNAME_FIELD = "name"
-    EMAIL_FIELD = "name"
 
     def __str__(self):
         return self.name
