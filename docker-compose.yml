@@ -11,23 +11,56 @@ services:
       - postgres_volume:/var/lib/postgresql
     env_file:
       - metrocensus/.env
-  api:
+  api: &api
     container_name: metrocensus-panel-api
     build:
       context: .
       dockerfile: Dockerfile
     command: bash -c "sleep 2s && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
-      - "8081:8001"
+      - "8088:8008"
     volumes:
       - ./metrocensus:/app/metrocensus
       - ./tests:/app/tests
       - ./data/media:/public/media
     depends_on:
       - db
+      - rabbitmq
+      - celery_worker
     env_file:
       - metrocensus/.env
     stdin_open: true
     tty: true
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.7-alpine
+
+  celery_worker:
+    <<: *api
+    container_name: celery_worker
+    restart: "no"
+    command: "celery -A metrocensus.metrocensus worker --loglevel=info"
+    ports: []
+    environment:
+      - COLUMNS=80
+    depends_on:
+      - rabbitmq
+      - db
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./metrocensus:/app/metrocensus
+      - ./tests:/app/tests
+      - ./data/media:/public/media
+    container_name: celery_beat
+    command: "celery -A metrocensus.metrocensus worker --loglevel=info"
+    depends_on:
+      - rabbitmq
+      - db
+
 volumes:
   postgres_volume:

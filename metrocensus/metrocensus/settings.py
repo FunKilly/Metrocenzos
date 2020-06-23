@@ -46,6 +46,13 @@ INSTALLED_APPS = [
     "metrocensus.events",
 ]
 
+# Celery settings
+
+CELERY_BROKER_URL = "amqp://rabbitmq"
+CELERY_RESULT_BACKEND = "amqp://rabbitmq"
+CELERY_TRACK_STARTED = True
+CELERY_IGNORE_RESULT = False
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -80,6 +87,7 @@ WSGI_APPLICATION = "metrocensus.metrocensus.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+
 DATABASES = {
     "default": {
         "ENGINE": env(
@@ -90,16 +98,6 @@ DATABASES = {
         "USER": env("POSTGRES_USER", default="postgres"),
         "PASSWORD": env("POSTGRES_PASSWORD", default="postgres"),
         "ATOMIC_REQUESTS": True,
-    },
-    "readonly": {
-        "ENGINE": env(
-            "DATABASE_BACKEND", default="django.db.backends.postgresql_psycopg2"
-        ),
-        "NAME": env("POSTGRES_DB", default="postgres"),
-        "HOST": env("POSTGRES_READONLY_HOST", default="db"),
-        "USER": env("POSTGRES_USER", default="postgres"),
-        "PASSWORD": env("POSTGRES_PASSWORD", default="postgres"),
-        "TEST": {"MIRROR": "default",},
     },
 }
 
