@@ -18,8 +18,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: gunicorn metrocensus.metrocensus.wsgi:application -w 2 -b :8088 --reload
-    ports:
-      - "8088:8008"
+    expose:
+      - 8088
     volumes:
       - .:/app
       - ./tests:/app/tests
@@ -32,6 +32,13 @@ services:
       - metrocensus/.env
     stdin_open: true
     tty: true
+  
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - api
 
   rabbitmq:
     container_name: rabbitmq

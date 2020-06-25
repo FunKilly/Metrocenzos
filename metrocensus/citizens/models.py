@@ -30,4 +30,3 @@ class CitizenFile(models.Model):
     desription = models.CharField(max_length=400, null=False)
     result = models.CharField(max_length=200)
     citizen_status_changed = models.BooleanField(default=False)
-
