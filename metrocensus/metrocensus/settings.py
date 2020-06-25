@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     # Local Apps
     "metrocensus.admin",
     "metrocensus.citizens",
-    "metrocensus.events",
+    "metrocensus.bank", 
 ]
 
 # Celery settings

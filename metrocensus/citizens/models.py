@@ -31,8 +31,3 @@ class CitizenFile(models.Model):
     result = models.CharField(max_length=200)
     citizen_status_changed = models.BooleanField(default=False)
 
-
-class ReasonOfDeath(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=50, null=False)
-    place = models.CharField(max_length=70)

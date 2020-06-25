@@ -16,11 +16,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: bash -c "sleep 2s && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    restart: unless-stopped
+    command: gunicorn metrocensus.metrocensus.wsgi:application -w 2 -b :8088 --reload
     ports:
       - "8088:8008"
     volumes:
-      - ./metrocensus:/app/metrocensus
+      - .:/app
       - ./tests:/app/tests
       - ./data/media:/public/media
     depends_on:
@@ -38,6 +39,8 @@ services:
 
   celery_worker:
     <<: *api
+    build:
+      context: .
     container_name: celery_worker
     restart: "no"
     command: "celery -A metrocensus.metrocensus worker --loglevel=info"
@@ -51,7 +54,6 @@ services:
   celery-beat:
     build:
       context: .
-      dockerfile: Dockerfile
     volumes:
       - ./metrocensus:/app/metrocensus
       - ./tests:/app/tests
