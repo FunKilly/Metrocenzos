@@ -1,9 +1,7 @@
 import uuid
 
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
-from metrocensus.admin.constants import UserRoleType
 from metrocensus.citizens.models import Citizen
 
 

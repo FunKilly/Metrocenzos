@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     "metrocensus.citizens",
     "metrocensus.bank",
     # Third party apps
-    'rest_framework.authtoken'
+    "rest_framework.authtoken",
 ]
 
 # Celery settings

@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-
 from rest_framework import serializers
-from rest_framework.authentication import authenticate
 
 from metrocensus.admin.exceptions import PasswordConfirmationFailedException
 
@@ -35,6 +33,18 @@ class UserCreationSerializer(serializers.ModelSerializer):
         else:
             validate_password(password)
             return data
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ["password"]
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name"]
 
 
 class AuthTokenSerializer(serializers.Serializer):

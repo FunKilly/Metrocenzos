@@ -1,19 +1,36 @@
 from django.contrib.auth.models import User
-
-from rest_framework import generics, status
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.authentication import authenticate
-from rest_framework import permissions
+from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.response import Response
 
-from metrocensus.admin.permissions import IsSuperAdmin
-from metrocensus.admin.serializers import UserCreationSerializer, AuthTokenSerializer
 from metrocensus.admin.exceptions import InvalidCredentialsException
+from metrocensus.admin.mixins import GetSerializerClassMixin
+from metrocensus.admin.permissions import IsSuperAdmin
+from metrocensus.admin.serializers import (
+    AuthTokenSerializer,
+    UserCreationSerializer,
+    UserDetailSerializer,
+    UserListSerializer,
+)
 
-class UserCreationView(generics.CreateAPIView):
+
+class UserViewSet(
+    generics.ListCreateAPIView,
+    generics.RetrieveUpdateAPIView,
+    GetSerializerClassMixin,
+    viewsets.GenericViewSet,
+):
     permission_classes = (IsSuperAdmin,)
-    serializer_class = UserCreationSerializer
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+    serializer_action_classes = {
+        "create": UserCreationSerializer,
+        "list": UserListSerializer,
+        "retrieve": UserDetailSerializer,
+    }
+    lookup_fields = ["id"]
 
     def create(self, request, token=None, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -22,7 +39,10 @@ class UserCreationView(generics.CreateAPIView):
         self.perform_create(serializer)
 
         user = serializer.instance
-        return Response(f"Account with username: {user.username} has been created.", status=status.HTTP_201_CREATED)
+        return Response(
+            f"Account with username: {user.username} has been created.",
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class CreateTokenView(ObtainAuthToken):
@@ -30,8 +50,11 @@ class CreateTokenView(ObtainAuthToken):
 
     serializer_class = AuthTokenSerializer
     permission_classes = (permissions.AllowAny,)
+    serializer_action_classes = {
+        "create": AuthTokenSerializer,
+    }
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
@@ -52,6 +75,3 @@ class CreateTokenView(ObtainAuthToken):
             raise InvalidCredentialsException
         else:
             return user
-
-
-    

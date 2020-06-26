@@ -38,7 +38,7 @@ def autoflake(c):
 
 
 @task
-def reformat(c):
+def precommit(c):
     isort(c)
     black(c)
     autoflake(c)
