@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+
 from rest_framework import serializers
+from rest_framework.authentication import authenticate
 
 from metrocensus.admin.exceptions import PasswordConfirmationFailedException
 
@@ -16,8 +18,8 @@ class UserCreationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User(
             username=self.validated_data["username"],
-            first_name=self.validated_data["first_name"],
-            last_name=self.validated_data["last_name"],
+            first_name=self.validated_data.get("first_name", ""),
+            last_name=self.validated_data.get("last_name", ""),
             is_staff=True,
         )
         user.set_password(self.validated_data["password"])
@@ -33,3 +35,8 @@ class UserCreationSerializer(serializers.ModelSerializer):
         else:
             validate_password(password)
             return data
+
+
+class AuthTokenSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()

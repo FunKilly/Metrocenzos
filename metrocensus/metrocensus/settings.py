@@ -31,7 +31,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-AUTH_USER_MODEL = "admin.User"
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +43,8 @@ INSTALLED_APPS = [
     "metrocensus.admin",
     "metrocensus.citizens",
     "metrocensus.bank",
+    # Third party apps
+    'rest_framework.authtoken'
 ]
 
 # Celery settings
