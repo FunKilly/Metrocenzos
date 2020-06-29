@@ -1,5 +1,5 @@
-from django.contrib.auth.models import User
-from rest_framework import generics, permissions, status, viewsets
+from metrocensus.admin.models import User
+from rest_framework import generics, permissions, status, viewsets, mixins
 from rest_framework.authentication import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -17,10 +17,11 @@ from metrocensus.admin.serializers import (
 
 
 class UserViewSet(
-    generics.ListCreateAPIView,
-    generics.RetrieveUpdateAPIView,
     GetSerializerClassMixin,
     viewsets.GenericViewSet,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
 ):
     permission_classes = (IsSuperAdmin,)
     queryset = User.objects.all()
@@ -30,7 +31,6 @@ class UserViewSet(
         "list": UserListSerializer,
         "retrieve": UserDetailSerializer,
     }
-    lookup_fields = ["id"]
 
     def create(self, request, token=None, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -54,13 +54,13 @@ class CreateTokenView(ObtainAuthToken):
         "create": AuthTokenSerializer,
     }
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-
         user = self.get_user_if_valid(serializer.validated_data)
+        
         token, _ = Token.objects.get_or_create(user=user)
 
         return Response({"token": token.key})
@@ -75,3 +75,20 @@ class CreateTokenView(ObtainAuthToken):
             raise InvalidCredentialsException
         else:
             return user
+
+
+class CitizenViewSet(
+    GetSerializerClassMixin,
+    viewsets.GenericViewSet,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+):
+    permission_classes = (IsSuperAdmin,)
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+    serializer_action_classes = {
+        "create": UserCreationSerializer,
+        "list": UserListSerializer,
+        "retrieve": UserDetailSerializer,
+    }

@@ -7,7 +7,7 @@ router = routers.SimpleRouter()
 router.register(r"admin-panel/users", UserViewSet)
 
 urlpatterns = [
-    path("admin-panel/login/", CreateTokenView.as_view(), name="login"),
+    path("admin-panel/login", CreateTokenView.as_view(), name="login"),
 ]
 
 urlpatterns += router.urls
