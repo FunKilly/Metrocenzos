@@ -1,8 +1,9 @@
-from django.contrib.auth.models import User
+from metrocensus.admin.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from metrocensus.admin.exceptions import PasswordConfirmationFailedException
+from metrocensus.citizens.models import Citizen
 
 
 class UserCreationSerializer(serializers.ModelSerializer):
@@ -50,3 +51,36 @@ class UserListSerializer(serializers.ModelSerializer):
 class AuthTokenSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+
+
+class CitizenCreationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Citizen
+        fields = ["name", "surname", "place_of_resident"]
+
+    def create(self, validated_data):
+        citizen = Citizen(
+            name=self.validated_data["name"],
+            surname=self.validated_data.get("surname"),
+            place_of_resident=self.validated_data.get("place_of_resident"),
+        )
+        citizen.save()
+        return citizen
+
+class CitizenDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Citizen
+        fields = '__all__'
+
+
+class CitizenListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Citizen
+        fields = ["id", "name", "surname", "place_of_resident", "status"]
+
+
+class CitizenUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Citizen
+        fields = ["place_of_resident", "profession", "status"]

@@ -18,3 +18,17 @@ class CitizenProfessionType(models.TextChoices):
     UNEMPLOYED = "unemployed", _("Unemployed")
     COMMANDER = "commander", _("Commander")
     SHOPKEEPER = "shopkeeper", _("Shopkeeper")
+
+
+class MetroStationType(models.TextChoices):
+    ALEKSJEJEWSKA = "alexeyevskaya", _("Alexeyevskaya")
+    KIJOWSKA = "kievskaya", _("Kievskaya")
+    PAVLETSKAYA = "paveletskaya", _("Paveletskaya")
+    KREMLIN = "kremlin", _("Kremlin")
+    POLIS = "polis", _("polis")
+    RIZHSKAYA= "rizhskaya", _("Rizhskaya")
+    SEVASTOPOLSKAKYA = "sevastopolskaya", _("Sevastopolskaya")
+    SMOLENSKAYA = "smolenskaya", _("Smolenskaya")
+    DEPOT = "depot", _("Depot")
+    LUBYANKA = "lubyanka", _("Lubyanka")
+    UNKNOWN = "unknown", _("Unknown")

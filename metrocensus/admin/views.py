@@ -1,10 +1,12 @@
-from django.contrib.auth.models import User
-from rest_framework import generics, permissions, status, viewsets
+from metrocensus.admin.models import User
+from rest_framework import generics, permissions, status, viewsets, mixins
 from rest_framework.authentication import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
+from rest_framework import permissions
 
+from metrocensus.citizens.models import Citizen, CitizenFIle
 from metrocensus.admin.exceptions import InvalidCredentialsException
 from metrocensus.admin.mixins import GetSerializerClassMixin
 from metrocensus.admin.permissions import IsSuperAdmin
@@ -13,14 +15,19 @@ from metrocensus.admin.serializers import (
     UserCreationSerializer,
     UserDetailSerializer,
     UserListSerializer,
+    CitizenCreationSerializer,
+    CitizenDetailSerializer,
+    CitizenListSerializer,
+    CitizenUpdateSerializer
 )
 
 
 class UserViewSet(
-    generics.ListCreateAPIView,
-    generics.RetrieveUpdateAPIView,
     GetSerializerClassMixin,
     viewsets.GenericViewSet,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
 ):
     permission_classes = (IsSuperAdmin,)
     queryset = User.objects.all()
@@ -30,9 +37,8 @@ class UserViewSet(
         "list": UserListSerializer,
         "retrieve": UserDetailSerializer,
     }
-    lookup_fields = ["id"]
 
-    def create(self, request, token=None, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -54,13 +60,13 @@ class CreateTokenView(ObtainAuthToken):
         "create": AuthTokenSerializer,
     }
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
-
         user = self.get_user_if_valid(serializer.validated_data)
+        
         token, _ = Token.objects.get_or_create(user=user)
 
         return Response({"token": token.key})
@@ -75,3 +81,39 @@ class CreateTokenView(ObtainAuthToken):
             raise InvalidCredentialsException
         else:
             return user
+
+
+class CitizenViewSet(
+    GetSerializerClassMixin,
+    viewsets.GenericViewSet,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+):
+    permission_classes = (permissions.IsAdminUser,)
+    queryset = Citizen.objects.all()
+    serializer_class = CitizenListSerializer
+    serializer_action_classes = {
+        "create": CitizenCreationSerializer,
+        "list": CitizenListSerializer,
+        "retrieve": CitizenDetailSerializer,
+        "partial_update": CitizenUpdateSerializer,
+    }
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        citizen = serializer.instance
+        
+
+        return Response(
+            f"Account with username: {citizen.name} {citizen.surname} has been created.",
+            status=status.HTTP_201_CREATED,
+        )
+
+
+#class CitizenFileUpdateView(generics.UpdateAPIView):
