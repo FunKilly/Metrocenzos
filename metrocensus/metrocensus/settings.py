@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     # Local Apps
     "metrocensus.admin",
     "metrocensus.citizens",
-    "metrocensus.bank",
     # Third party apps
     "rest_framework.authtoken",
 ]
