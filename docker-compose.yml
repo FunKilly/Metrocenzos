@@ -11,19 +11,20 @@ services:
       - postgres_volume:/var/lib/postgresql
     env_file:
       - metrocensus/.env
-  api: &api
+
+  metrocensus-api: &metrocensus
     container_name: metrocensus-panel-api
     build:
-      context: .
+      context: ./metrocensus
       dockerfile: Dockerfile
     restart: unless-stopped
-    command: gunicorn metrocensus.metrocensus.wsgi:application -w 2 -b :8088 --reload
-    expose:
-      - 8088
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8002"
+    ports:
+      - "8002:8002"
     volumes:
-      - .:/app
-      - ./tests:/app/tests
-      - ./data/media:/public/media
+      - ./metrocensus:/app
+      - .metrocensus/tests:/app/tests
+      - ./metrocensus/data/media:/public/media
     depends_on:
       - db
       - rabbitmq
@@ -33,24 +34,42 @@ services:
     stdin_open: true
     tty: true
   
-  nginx:
-    build: ./nginx
+
+  bank-api: &bank
+    container_name: bank-api
+    build:
+      context: ./bank
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8001"
+    #expose:
+    # - 9088
     ports:
-      - 1337:80
+      - "8001:8001"
+    volumes:
+      - ./bank:/app
+      - ./bank/tests:/app/tests
+      - ./bank/data/media:/public/media
     depends_on:
-      - api
+      - db
+      - rabbitmq
+      - celery_worker
+    env_file:
+      - bank/.env
+    stdin_open: true
+    tty: true
 
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3.7-alpine
 
   celery_worker:
-    <<: *api
+    <<: *bank
     build:
-      context: .
+      context: ./bank
     container_name: celery_worker
     restart: "no"
-    command: "celery -A metrocensus.metrocensus worker --loglevel=info"
+    command: "celery -A bank worker --loglevel=info"
     ports: []
     environment:
       - COLUMNS=80
@@ -60,13 +79,9 @@ services:
 
   celery-beat:
     build:
-      context: .
-    volumes:
-      - ./metrocensus:/app/metrocensus
-      - ./tests:/app/tests
-      - ./data/media:/public/media
+      context: ./bank
     container_name: celery_beat
-    command: "celery -A metrocensus.metrocensus worker --loglevel=info"
+    command: "celery -A bank worker --loglevel=info"
     depends_on:
       - rabbitmq
       - db

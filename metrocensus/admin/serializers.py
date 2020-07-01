@@ -1,9 +1,9 @@
-from metrocensus.admin.models import User
+from admin.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from metrocensus.admin.exceptions import PasswordConfirmationFailedException
-from metrocensus.citizens.models import Citizen
+from admin.exceptions import PasswordConfirmationFailedException
+from citizens.models import Citizen
 
 
 class UserCreationSerializer(serializers.ModelSerializer):

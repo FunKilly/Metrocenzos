@@ -1,4 +1,4 @@
-from metrocensus.admin.models import User
+from admin.models import User
 from rest_framework import generics, permissions, status, viewsets, mixins
 from rest_framework.authentication import authenticate
 from rest_framework.authtoken.models import Token
@@ -6,11 +6,11 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import permissions
 
-from metrocensus.citizens.models import Citizen, CitizenFIle
-from metrocensus.admin.exceptions import InvalidCredentialsException
-from metrocensus.admin.mixins import GetSerializerClassMixin
-from metrocensus.admin.permissions import IsSuperAdmin
-from metrocensus.admin.serializers import (
+from citizens.models import Citizen, CitizenFile
+from admin.exceptions import InvalidCredentialsException
+from admin.mixins import GetSerializerClassMixin
+from admin.permissions import IsSuperAdmin
+from admin.serializers import (
     AuthTokenSerializer,
     UserCreationSerializer,
     UserDetailSerializer,

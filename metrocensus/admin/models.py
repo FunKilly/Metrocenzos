@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from metrocensus.citizens.models import Citizen
+from citizens.models import Citizen
 
 
 class PayoutHistory(models.Model):

@@ -1,8 +1,7 @@
 import uuid
 
 from django.db import models
-
-from citizens.constants import CitizenProfessionType, CitizenStatusType, MetroStationType
+from accounts.constants import CitizenProfessionType, CitizenStatusType, MetroStationType
 
 
 class Citizen(models.Model):
@@ -23,10 +22,19 @@ class Citizen(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     changed_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = "citizens_citizen"
 
-class CitizenFile(models.Model):
+
+class CitizenAccount(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    citizen = models.ForeignKey(Citizen, on_delete=models.PROTECT)
-    desription = models.CharField(max_length=400, null=False)
-    result = models.CharField(max_length=200)
-    citizen_status_changed = models.BooleanField(default=False)
+    owner = models.ForeignKey(Citizen, on_delete=models.PROTECT)
+    account_balance = models.DecimalField(default=0, decimal_places=2, max_digits=9)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+class AccountHistory(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    account = models.ForeignKey(CitizenAccount, on_delete=models.PROTECT)
+    description = models.CharField(max_length=300)
+    created_at = models.DateTimeField(auto_now_add=True)
