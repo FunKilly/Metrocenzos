@@ -9,9 +9,9 @@ class Citizen(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=25, null=False)
     surname = models.CharField(max_length=40, null=False)
-    place_of_resident = models.CharField(max_length=50,
-        choices=MetroStationType.choices,
-        default=MetroStationType.UNKNOWN,)
+    place_of_resident = models.CharField(
+        max_length=50, choices=MetroStationType.choices, default=MetroStationType.UNKNOWN,
+    )
     profession = models.CharField(
         max_length=30,
         choices=CitizenProfessionType.choices,
@@ -23,10 +23,17 @@ class Citizen(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     changed_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = "citizen"
+
 
 class CitizenFile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     citizen = models.ForeignKey(Citizen, on_delete=models.PROTECT)
-    desription = models.CharField(max_length=400, null=False)
+    description = models.CharField(max_length=400, null=False)
     result = models.CharField(max_length=200)
     citizen_status_changed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "citizen_file"

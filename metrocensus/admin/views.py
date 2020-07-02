@@ -1,25 +1,26 @@
-from admin.models import User
-from rest_framework import generics, permissions, status, viewsets, mixins
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.authentication import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
-from rest_framework import permissions
 
-from citizens.models import Citizen, CitizenFile
+from common_utils.mixins import GetSerializerClassMixin
+
 from admin.exceptions import InvalidCredentialsException
-from admin.mixins import GetSerializerClassMixin
+
+from admin.models import User
 from admin.permissions import IsSuperAdmin
 from admin.serializers import (
     AuthTokenSerializer,
-    UserCreationSerializer,
-    UserDetailSerializer,
-    UserListSerializer,
     CitizenCreationSerializer,
     CitizenDetailSerializer,
     CitizenListSerializer,
-    CitizenUpdateSerializer
+    CitizenUpdateSerializer,
+    UserCreationSerializer,
+    UserDetailSerializer,
+    UserListSerializer,
 )
+from citizens.models import Citizen
 
 
 class UserViewSet(
@@ -66,12 +67,13 @@ class CreateTokenView(ObtainAuthToken):
         )
         serializer.is_valid(raise_exception=True)
         user = self.get_user_if_valid(serializer.validated_data)
-        
+
         token, _ = Token.objects.get_or_create(user=user)
 
         return Response({"token": token.key})
 
-    def get_user_if_valid(self, data):
+    @classmethod
+    def get_user_if_valid(data):
         username = data["username"]
         password = data["password"]
 
@@ -108,7 +110,6 @@ class CitizenViewSet(
         self.perform_create(serializer)
 
         citizen = serializer.instance
-        
 
         return Response(
             f"Account with username: {citizen.name} {citizen.surname} has been created.",
@@ -116,4 +117,4 @@ class CitizenViewSet(
         )
 
 
-#class CitizenFileUpdateView(generics.UpdateAPIView):
+# class CitizenFileUpdateView(generics.UpdateAPIView):
