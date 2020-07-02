@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # Local Apps
     "admin",
     "citizens",
+    "bank_accounts",
     # Third party apps
     "rest_framework.authtoken",
 ]
