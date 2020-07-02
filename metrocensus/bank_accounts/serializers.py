@@ -1,19 +1,17 @@
-
-
 from rest_framework import serializers
-from bank_accounts.models import CitizenAccount
+
+from bank_accounts.models import AccountHistory, CitizenAccount
+
 
 class CitizenAccountCreateSerializer(serializers.Serializer):
-    user_id = serializers.UUIDField()
+    citizen_id = serializers.UUIDField()
 
     class Meta:
         model = CitizenAccount
         fields = []
 
     def create(self, validated_data):
-        account = CitizenAccount(
-            owner=self.validated_data["owner"],
-        )
+        account = CitizenAccount(owner=self.validated_data["owner"],)
         account.save()
         return account
 
@@ -21,16 +19,20 @@ class CitizenAccountCreateSerializer(serializers.Serializer):
 class CitizenAccountDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = CitizenAccount
-        exclude = ["owner", "account_balance", "created_at", "modified_at"]
+        fields = ["owner", "account_balance", "created_at", "modified_at"]
 
 
 class CitizenAccountListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CitizenAccount
-        fields = ["owner", "created_at"]
+        fields = ["id", "owner", "created_at"]
 
 
-class CitizenAccountUpdateSerializer(serializers.ModelSerializer):
+class CitizenAccountUpdateSerializer(serializers.Serializer):
+    amount_of_change = serializers.DecimalField(max_digits=9, decimal_places=2)
+
+
+class CitizenAccountHistoryListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CitizenAccount
-        fields = ["account_balance"]
+        model = AccountHistory
+        fields = "__all__"

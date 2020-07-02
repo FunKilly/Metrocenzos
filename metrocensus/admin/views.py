@@ -4,10 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 
-from common_utils.mixins import GetSerializerClassMixin
-
 from admin.exceptions import InvalidCredentialsException
-
 from admin.models import User
 from admin.permissions import IsSuperAdmin
 from admin.serializers import (
@@ -21,6 +18,7 @@ from admin.serializers import (
     UserListSerializer,
 )
 from citizens.models import Citizen
+from common_utils.mixins import GetSerializerClassMixin
 
 
 class UserViewSet(
@@ -72,7 +70,7 @@ class CreateTokenView(ObtainAuthToken):
 
         return Response({"token": token.key})
 
-    @classmethod
+    @staticmethod
     def get_user_if_valid(data):
         username = data["username"]
         password = data["password"]
@@ -115,6 +113,3 @@ class CitizenViewSet(
             f"Account with username: {citizen.name} {citizen.surname} has been created.",
             status=status.HTTP_201_CREATED,
         )
-
-
-# class CitizenFileUpdateView(generics.UpdateAPIView):
