@@ -26,7 +26,7 @@ env.read_envfile()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "qi%z6rmcx44fay5xeiqg%9ln6vzx^yt0@%^#f(7#-$h4_sg4he"
 
-AUTH_USER_MODEL = 'admin.User'
+AUTH_USER_MODEL = "admin.User"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

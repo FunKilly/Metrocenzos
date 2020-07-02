@@ -1,8 +1,8 @@
-from admin.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from admin.exceptions import PasswordConfirmationFailedException
+from admin.models import User
 from citizens.models import Citizen
 
 
@@ -54,7 +54,6 @@ class AuthTokenSerializer(serializers.Serializer):
 
 
 class CitizenCreationSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Citizen
         fields = ["name", "surname", "place_of_resident"]
@@ -68,10 +67,11 @@ class CitizenCreationSerializer(serializers.ModelSerializer):
         citizen.save()
         return citizen
 
+
 class CitizenDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Citizen
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CitizenListSerializer(serializers.ModelSerializer):
