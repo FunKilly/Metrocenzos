@@ -26,7 +26,7 @@ class MetroStationType(models.TextChoices):
     PAVLETSKAYA = "paveletskaya", _("Paveletskaya")
     KREMLIN = "kremlin", _("Kremlin")
     POLIS = "polis", _("polis")
-    RIZHSKAYA = "rizhskaya", _("Rizhskaya")
+    RIZHSKAYA= "rizhskaya", _("Rizhskaya")
     SEVASTOPOLSKAKYA = "sevastopolskaya", _("Sevastopolskaya")
     SMOLENSKAYA = "smolenskaya", _("Smolenskaya")
     DEPOT = "depot", _("Depot")
