@@ -3,7 +3,8 @@ from rest_framework import serializers
 
 from admin.exceptions import PasswordConfirmationFailedException
 from admin.models import User
-from citizens.models import Citizen
+from citizens.constants import CitizenProfessionType, CitizenStatusType
+from citizens.models import Citizen, CitizenFile
 
 
 class UserCreationSerializer(serializers.ModelSerializer):
@@ -84,3 +85,40 @@ class CitizenUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Citizen
         fields = ["place_of_resident", "profession", "status"]
+
+
+class CitizenFileCreateSerializer(serializers.ModelSerializer):
+    citizen_status = serializers.ChoiceField(choices=CitizenStatusType, required=False)
+    citizen_profession = serializers.ChoiceField(
+        choices=CitizenProfessionType, required=False
+    )
+    result = serializers.CharField(max_length=200, required=False)
+
+    class Meta:
+        model = CitizenFile
+        fields = ["description", "result", "citizen_status", "citizen_profession"]
+
+    def create(self, validated_data):
+        entry = CitizenFile(
+            citizen=self.validated_data["citizen"],
+            description=self.validated_data["description"],
+            citizen_status_changed=self.validated_data.get(
+                "citizen_status_changed", False
+            ),
+            result=self.validated_data.get("result"),
+        )
+        entry.save()
+        return entry
+
+
+class CitizenFileListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CitizenFile
+        fields = [
+            "id",
+            "citizen",
+            "description",
+            "result",
+            "citizen_status_changed",
+            "created_at",
+        ]

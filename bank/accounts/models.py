@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 from accounts.constants import CitizenProfessionType, CitizenStatusType, MetroStationType
-
+from users.models import User
 
 class Citizen(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -41,6 +41,7 @@ class AccountHistory(models.Model):
     account = models.ForeignKey(CitizenAccount, on_delete=models.PROTECT)
     description = models.CharField(max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
+    transaction_support = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
         db_table = "account_history"
@@ -51,6 +52,7 @@ class SavingProgramParticipant(models.Model):
     account = models.ForeignKey(CitizenAccount, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=4, default=0.055)
+    deposit_balance = models.DecimalField(max_digits=99, decimal_places=2)
 
     class Meta:
         db_table = "saving_program_participant"
