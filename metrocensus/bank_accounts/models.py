@@ -17,10 +17,10 @@ class CitizenAccount(models.Model):
     class Meta:
         db_table = "citizen_account"
 
-    def add_entry_to_operation_history(self, amount_of_change):
+    def add_entry_to_operation_history(self, amount_of_change, user):
         description = self.generate_description(amount_of_change)
 
-        entry = AccountHistory(account=self, description=description)
+        entry = AccountHistory(account=self, description=description, transaction_support=user)
         entry.save()
 
     def generate_description(self, amount_of_change):
@@ -43,7 +43,8 @@ class SavingProgramParticipant(models.Model):
     account = models.ForeignKey(CitizenAccount, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=4, default=0.055)
-    deposit_balance = models.DecimalField(max_digits=99, decimal_places=2)
+    deposit_balance = models.DecimalField(max_digits=99, decimal_places=2, default=0)
+    profit = models.DecimalField(max_digits=99, decimal_places=2, default=0)
 
     class Meta:
         db_table = "saving_program_participant"

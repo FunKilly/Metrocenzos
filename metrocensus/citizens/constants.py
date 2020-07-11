@@ -22,7 +22,7 @@ class CitizenProfessionType(models.TextChoices):
 
 class MetroStationType(models.TextChoices):
     ALEKSJEJEWSKA = "alexeyevskaya", _("Alexeyevskaya")
-    KIJOWSKA = "kievskaya", _("Kievskaya")
+    KIEVSKAYA = "kievskaya", _("Kievskaya")
     PAVLETSKAYA = "paveletskaya", _("Paveletskaya")
     KREMLIN = "kremlin", _("Kremlin")
     POLIS = "polis", _("polis")

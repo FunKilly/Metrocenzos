@@ -10,7 +10,7 @@ class Citizen(models.Model):
     surname = models.CharField(max_length=40, null=False)
     place_of_resident = models.CharField(max_length=50,
         choices=MetroStationType.choices,
-        default=MetroStationType.UNKNOWN,)
+        null=False)
     profession = models.CharField(
         max_length=30,
         choices=CitizenProfessionType.choices,
@@ -52,7 +52,8 @@ class SavingProgramParticipant(models.Model):
     account = models.ForeignKey(CitizenAccount, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=4, default=0.055)
-    deposit_balance = models.DecimalField(max_digits=99, decimal_places=2)
+    deposit_balance = models.DecimalField(max_digits=99, decimal_places=2, default=0)
+    profit = models.DecimalField(max_digits=99, decimal_places=2, default=0)
 
     class Meta:
         db_table = "saving_program_participant"

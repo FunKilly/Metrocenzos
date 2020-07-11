@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from bank_accounts.models import AccountHistory, CitizenAccount
+from bank_accounts.models import AccountHistory, CitizenAccount, SavingProgramParticipant
 
 
 class CitizenAccountCreateSerializer(serializers.Serializer):
@@ -27,7 +27,6 @@ class CitizenAccountListSerializer(serializers.ModelSerializer):
         model = CitizenAccount
         fields = ["id", "owner", "created_at"]
 
-
 class CitizenAccountUpdateSerializer(serializers.Serializer):
     amount_of_change = serializers.DecimalField(max_digits=9, decimal_places=2)
 
@@ -36,3 +35,22 @@ class CitizenAccountHistoryListSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountHistory
         fields = "__all__"
+
+class SavingProgramCreateSerializer(serializers.ModelSerializer):
+    account_id = serializers.UUIDField(allow_null=False)
+
+    class Meta:
+        model = SavingProgramParticipant
+        fields = ["deposit_balance"]
+
+
+class SavingProgramDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavingProgramParticipant
+        fields = "__all__"
+
+
+class SavingProgramListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavingProgramParticipant
+        fields = ["created_at", "interest_rate", "deposit_balance"]

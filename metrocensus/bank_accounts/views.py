@@ -3,13 +3,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from bank_accounts.exceptions import AccountDoesNotExistException
-from bank_accounts.models import AccountHistory, CitizenAccount
+from bank_accounts.models import AccountHistory, CitizenAccount, SavingProgramParticipant
 from bank_accounts.serializers import (
     CitizenAccountCreateSerializer,
     CitizenAccountDetailSerializer,
     CitizenAccountHistoryListSerializer,
     CitizenAccountListSerializer,
     CitizenAccountUpdateSerializer,
+    SavingProgramCreateSerializer,
+    SavingProgramDetailSerializer,
+    SavingProgramListSerializer
 )
 from citizens.exceptions import CitizenDoesNotExistException
 from citizens.models import Citizen
@@ -56,7 +59,7 @@ class BankAccountViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
             citizen_account.account_balance += amount
             citizen_account.save()
 
-            citizen_account.add_entry_to_operation_history(amount)
+            citizen_account.add_entry_to_operation_history(amount, request.user)
 
             return Response(
                 f"Account balance has been changed, the amount of change is equal : {amount}, current account balance is equal: {citizen_account.account_balance}"
@@ -74,3 +77,86 @@ class BankAccountViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         entries = AccountHistory.objects.filter(account__pk=pk)
         serializer = self.get_serializer(entries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SavingProgramViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAdminUser,)
+    queryset = SavingProgramParticipant.objects.all()
+    serializer_class = SavingProgramListSerializer
+    serializer_action_classes = {
+        "retrieve": SavingProgramDetailSerializer,
+        "create": SavingProgramCreateSerializer,
+    }
+
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        program = SavingProgramParticipant.objects.filter(account__pk=pk)
+        if program:
+            serializer = self.get_serializer(program)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response("Saving program does not exist.", status=status.HTTP_400_BAD_REQUEST)
+
+
+    def create(self, request, pk=None, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        account = CitizenAccount(pk=serializer.validated_data["account_id"]).first()
+
+        if self.operation_is_valid(serializer.validated_data, account.account_balance):
+
+            saving_program = SavingProgram(account=account)
+            saving_program.save()
+
+            self.transfer_money(saving_program, account, serializer.validated_data["deposit_balance"])
+            return Response("Saving program for an account has been created.", status=status.HTTP_201_CREATED)
+        else:
+            return Response("Operation is invalid, saving program already exists or account with given pk does not exist.")
+
+    def operation_is_valid(self, data, account_balance):
+            if data["deposit_balance"] > account.account_balance:
+                return False
+            elif SavingProgramParticipant(account__id=data["account_id"]).exists():
+                return False
+            else:
+                return True
+    
+    def transfer_money(self, saving_program, account, deposit_balance):
+        saving_program.deposit_balance = deposit_balance
+        saving_program.save()
+
+        account.account_balance -= deposit_balance
+        account.save()
+
+    def get_account_history(self, request, pk=None, *args, **kwargs):
+        entries = AccountHistory.objects.filter(account__pk=pk)
+        serializer = self.get_serializer(entries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        methods=["delete"],
+        detail=True,
+        url_path="deactivate-program",
+        url_name="deactivate_program",
+    )
+    def deactivate_program(self, pk=None, *args, **kwargs):
+        program = SavingProgramParticipant.objects.filter(account__pk=pk)
+        if program:
+            account = CitizenAccount(pk=pk)
+
+            withdraw_money(program, account)
+            program.delete()
+
+            return Response("Saving program has been closed, profit has been transfered", status=status.HTTP_200_OK)
+        else:
+            return Response("Saving program does not exist.", status=status.HTTP_400_BAD_REQUEST)
+
+    def withdraw_money(self, saving_program, account):
+        total_sum = saving_program.deposit_balance + saving_program.profit
+
+        account.account_balance += total_sum
+        account.save()
+
+
+                
+

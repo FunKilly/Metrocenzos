@@ -10,7 +10,7 @@ class Citizen(models.Model):
     name = models.CharField(max_length=25, null=False)
     surname = models.CharField(max_length=40, null=False)
     place_of_resident = models.CharField(
-        max_length=50, choices=MetroStationType.choices, default=MetroStationType.UNKNOWN,
+        max_length=50, choices=MetroStationType.choices, null=False
     )
     profession = models.CharField(
         max_length=30,

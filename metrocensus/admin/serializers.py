@@ -46,7 +46,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name"]
+        fields = ["id", "username", "first_name", "last_name"]
 
 
 class AuthTokenSerializer(serializers.Serializer):
