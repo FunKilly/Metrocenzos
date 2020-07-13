@@ -1,4 +1,4 @@
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, status, viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -36,7 +36,7 @@ class BankAccountViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         citizen = Citizen.objects.filter(
-            pk=serializer.validated_data["citizen_id"]
+            id=serializer.validated_data["citizen_id"]
         ).first()
         if citizen:
             serializer.validated_data["owner"] = citizen
@@ -52,7 +52,7 @@ class BankAccountViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        citizen_account = CitizenAccount.objects.filter(pk=pk).first()
+        citizen_account = CitizenAccount.objects.filter(id=pk).first()
 
         if citizen_account:
             amount = serializer.validated_data["amount_of_change"]
@@ -74,12 +74,12 @@ class BankAccountViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         url_name="account_history",
     )
     def get_account_history(self, request, pk=None, *args, **kwargs):
-        entries = AccountHistory.objects.filter(account__pk=pk)
+        entries = AccountHistory.objects.filter(account__id=pk)
         serializer = self.get_serializer(entries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SavingProgramViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
+class SavingProgramViewSet(GetSerializerClassMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.IsAdminUser,)
     queryset = SavingProgramParticipant.objects.all()
     serializer_class = SavingProgramListSerializer
@@ -89,7 +89,7 @@ class SavingProgramViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
     }
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        program = SavingProgramParticipant.objects.filter(account__pk=pk)
+        program = SavingProgramParticipant.objects.filter(account__id=pk).first()
         if program:
             serializer = self.get_serializer(program)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -97,26 +97,26 @@ class SavingProgramViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
             return Response("Saving program does not exist.", status=status.HTTP_400_BAD_REQUEST)
 
 
-    def create(self, request, pk=None, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        account = CitizenAccount(pk=serializer.validated_data["account_id"]).first()
+        account = CitizenAccount.objects.filter(id=serializer.validated_data["account_id"]).first()
 
         if self.operation_is_valid(serializer.validated_data, account.account_balance):
 
-            saving_program = SavingProgram(account=account)
+            saving_program = SavingProgramParticipant(account=account)
             saving_program.save()
 
             self.transfer_money(saving_program, account, serializer.validated_data["deposit_balance"])
             return Response("Saving program for an account has been created.", status=status.HTTP_201_CREATED)
         else:
-            return Response("Operation is invalid, saving program already exists or account with given pk does not exist.")
+            return Response("Operation is invalid, saving program already exists, account with given id does not exist or account balance is too low.")
 
     def operation_is_valid(self, data, account_balance):
-            if data["deposit_balance"] > account.account_balance:
+            if data["deposit_balance"] > account_balance:
                 return False
-            elif SavingProgramParticipant(account__id=data["account_id"]).exists():
+            elif SavingProgramParticipant.objects.filter(account__id=data["account_id"]).exists():
                 return False
             else:
                 return True
@@ -129,7 +129,7 @@ class SavingProgramViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         account.save()
 
     def get_account_history(self, request, pk=None, *args, **kwargs):
-        entries = AccountHistory.objects.filter(account__pk=pk)
+        entries = AccountHistory.objects.filter(account__id=pk)
         serializer = self.get_serializer(entries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -139,12 +139,12 @@ class SavingProgramViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
         url_path="deactivate-program",
         url_name="deactivate_program",
     )
-    def deactivate_program(self, pk=None, *args, **kwargs):
-        program = SavingProgramParticipant.objects.filter(account__pk=pk)
+    def deactivate_program(self, request, pk=None, *args, **kwargs):
+        program = SavingProgramParticipant.objects.filter(account__id=pk).first()
         if program:
-            account = CitizenAccount(pk=pk)
+            account = CitizenAccount.objects.filter(id=pk).first()
 
-            withdraw_money(program, account)
+            self.withdraw_money(program, account)
             program.delete()
 
             return Response("Saving program has been closed, profit has been transfered", status=status.HTTP_200_OK)

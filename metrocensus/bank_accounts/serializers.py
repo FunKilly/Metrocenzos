@@ -41,7 +41,7 @@ class SavingProgramCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SavingProgramParticipant
-        fields = ["deposit_balance"]
+        fields = ["deposit_balance", "account_id"]
 
 
 class SavingProgramDetailSerializer(serializers.ModelSerializer):
@@ -53,4 +53,4 @@ class SavingProgramDetailSerializer(serializers.ModelSerializer):
 class SavingProgramListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavingProgramParticipant
-        fields = ["created_at", "interest_rate", "deposit_balance"]
+        fields = ["id", "created_at", "interest_rate", "deposit_balance"]
