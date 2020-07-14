@@ -51,8 +51,8 @@ INSTALLED_APPS = [
 
 # Celery settings
 
-CELERY_BROKER_URL = "amqp://rabbitmq"
-CELERY_RESULT_BACKEND = "amqp://rabbitmq"
+CELERY_BROKER_URL = "rpc://rabbitmq"
+CELERY_RESULT_BACKEND = "rpc://rabbitmq"
 CELERY_TRACK_STARTED = True
 CELERY_IGNORE_RESULT = False
 

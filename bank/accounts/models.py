@@ -57,3 +57,8 @@ class SavingProgramParticipant(models.Model):
 
     class Meta:
         db_table = "saving_program_participant"
+
+    def calculate_interest(self):
+        profit = self.deposit_balance * self.interest_rate
+        self.profit += profit
+        self.save()

@@ -14,7 +14,9 @@ import os
 import pathlib
 
 from envparse import env
+from celery.schedules import crontab
 
+import bank.tasks
 
 env.read_envfile()
 
@@ -51,10 +53,21 @@ AUTH_USER_MODEL = "users.User"
 
 # Celery settings
 
-CELERY_BROKER_URL = "amqp://rabbitmq"
-CELERY_RESULT_BACKEND = "amqp://rabbitmq"
+CELERY_BROKER_URL = "rpc://rabbitmq"
+CELERY_RESULT_BACKEND = "rpc://rabbitmq"
 CELERY_TRACK_STARTED = True
 CELERY_IGNORE_RESULT = False
+
+CELERY_BEAT_SCHEDULE = {
+    "sample_task": {
+        "task": "bank.tasks.sample_task",
+        "schedule": crontab(),
+    },
+    "calculate_interest":{
+        "task": "bank.tasks.calculate_interest",
+        "schedule": crontab(day_of_month=10, hour=12,minute=00),
+    },
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

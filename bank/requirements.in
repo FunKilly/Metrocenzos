@@ -18,3 +18,4 @@ django-filter
 celery==4.4.1
 rabbitmq
 gunicorn==20.0.4
+crontab

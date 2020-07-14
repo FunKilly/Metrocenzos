@@ -67,6 +67,8 @@ services:
     <<: *bank
     build:
       context: ./bank
+    volumes:
+      - ./bank:/app
     container_name: celery_worker
     restart: "no"
     command: "celery -A bank worker --loglevel=info"
@@ -81,10 +83,11 @@ services:
     build:
       context: ./bank
     container_name: celery_beat
-    command: "celery -A bank worker --loglevel=info"
+    volumes:
+      - ./bank:/app
+    command: "celery -A bank beat --loglevel=info"
     depends_on:
       - rabbitmq
-      - db
 
 volumes:
   postgres_volume:

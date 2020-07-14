@@ -15,6 +15,7 @@ black==19.10b0            # via -r requirements.in
 celery==4.4.1             # via -r requirements.in
 cffi==1.14.0              # via rabbitmq
 click==7.1.2              # via black
+crontab==0.22.8           # via -r requirements.in
 distlib==0.3.1            # via virtualenv
 django-filter==2.2.0      # via -r requirements.in
 django==3.0.7             # via -r requirements.in, django-filter, djangorestframework
