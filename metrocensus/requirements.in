@@ -15,6 +15,6 @@ assertpy
 freezegun
 autoflake
 django-filter
-celery==4.4.1
+celery==5.2.2
 rabbitmq
 gunicorn==20.0.4
