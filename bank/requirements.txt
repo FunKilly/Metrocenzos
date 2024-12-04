@@ -77,7 +77,7 @@ pluggy==0.13.1
     #   tox
 psycopg2-binary==2.8.4
     # via -r requirements.in
-py==1.9.0
+py==1.10.0
     # via
     #   pytest
     #   tox
